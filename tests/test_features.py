@@ -1,7 +1,6 @@
 import numpy as np
-import pytest
-from src.features.engineering import SessionFeatures, extract_features, features_to_array
 
+from src.features.engineering import SessionFeatures, extract_features, features_to_array
 
 VALID_SESSION = {
     "cart_value": 89.99,
