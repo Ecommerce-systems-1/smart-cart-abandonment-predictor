@@ -56,12 +56,81 @@ SCENARIO_OPTIONS = {
 }
 
 
-def score_color(score: float) -> str:
-    if score < 0.3:
-        return "green"
-    elif score < 0.6:
-        return "orange"
-    return "red"
+@st.fragment
+def stream_sessions(model: xgb.XGBClassifier, scenario: str, num_sessions: int, speed: float) -> None:
+    """Runs the streaming loop in an isolated fragment to avoid session rerun conflicts."""
+    sessions = generate(scenario, num_sessions, seed=random.randint(1, 9999))
+    delay = 1.0 / speed
+
+    col1, col2, col3, col4 = st.columns(4)
+    metric_total = col1.empty()
+    metric_high_risk = col2.empty()
+    metric_avg_risk = col3.empty()
+    col4.metric("Model AUC-ROC", "~0.80", help="Measured on held-out synthetic test set")
+
+    st.divider()
+    col_feed, col_detail = st.columns([2, 1])
+    with col_feed:
+        st.subheader("Live Session Feed")
+        feed_placeholder = st.empty()
+    with col_detail:
+        st.subheader("Last Prediction Detail")
+        detail_placeholder = st.empty()
+    chart_placeholder = st.empty()
+
+    history: list[dict] = []
+    feed_rows: list[dict] = []
+
+    for i, session in enumerate(sessions):
+        features = extract_features(session.__dict__)
+        arr = features_to_array(features).reshape(1, -1)
+        risk_score = float(model.predict_proba(arr)[0][1])
+        incentive = recommend_incentive(risk_score)
+        high_risk = risk_score >= 0.6
+        label, color = INCENTIVE_LABELS[incentive]
+
+        history.append({
+            "risk_score": risk_score,
+            "high_risk": high_risk,
+        })
+        feed_rows.insert(0, {
+            "#": i + 1,
+            "Risk Score": f"{risk_score:.2f}",
+            "Device": session.device_type,
+            "Cart $": f"${session.cart_value:.0f}",
+            "Incentive": incentive.value,
+            "Ground Truth": "Abandoned" if session.abandoned else "Converted",
+        })
+
+        total = len(history)
+        high_risk_count = sum(1 for h in history if h["high_risk"])
+
+        metric_total.metric("Sessions Scored", total)
+        metric_high_risk.metric(
+            "High Risk (>=0.6)", f"{high_risk_count} ({high_risk_count / total:.0%})"
+        )
+        metric_avg_risk.metric(
+            "Avg Risk Score", f"{np.mean([h['risk_score'] for h in history]):.2f}"
+        )
+        feed_placeholder.dataframe(feed_rows[:20], use_container_width=True, hide_index=True)
+        detail_placeholder.markdown(f"""
+**Session #{i + 1}**
+- Risk Score: `{risk_score:.3f}`
+- :{color}[{label}]
+- Device: `{session.device_type}`
+- Cart Value: `${session.cart_value:.2f}`
+- Items: `{session.item_count}`
+- Session Duration: `{session.session_duration_seconds:.0f}s`
+- Checkout Attempts: `{session.checkout_start_attempts}`
+""")
+        if len(history) >= 5:
+            import pandas as pd
+            chart_data = pd.DataFrame({"Risk Score": [h["risk_score"] for h in history[-50:]]})
+            chart_placeholder.line_chart(chart_data, y="Risk Score", use_container_width=True)
+
+        time.sleep(delay)
+
+    st.success(f"Demo complete! Scored {len(history)} sessions.")
 
 
 def main() -> None:
@@ -78,96 +147,14 @@ def main() -> None:
         num_sessions = st.number_input("Sessions to run", 20, 500, 100, 10)
         run = st.button("Run Demo", use_container_width=True)
 
-    col1, col2, col3, col4 = st.columns(4)
-    metric_total = col1.empty()
-    metric_high_risk = col2.empty()
-    metric_avg_risk = col3.empty()
-    metric_auc = col4.empty()
-
-    metric_auc.metric("Model AUC-ROC", "~0.80", help="Measured on held-out synthetic test set")
-
-    st.divider()
-    col_feed, col_detail = st.columns([2, 1])
-
-    with col_feed:
-        st.subheader("Live Session Feed")
-        feed_placeholder = st.empty()
-
-    with col_detail:
-        st.subheader("Last Prediction Detail")
-        detail_placeholder = st.empty()
-
-    chart_placeholder = st.empty()
-
     if not run:
+        _, _, _, col4 = st.columns(4)
+        col4.metric("Model AUC-ROC", "~0.80", help="Measured on held-out synthetic test set")
+        st.divider()
         st.info("Configure a scenario in the sidebar and click **Run Demo** to start.")
         return
 
-    sessions = generate(scenario, int(num_sessions), seed=random.randint(1, 9999))
-
-    history: list[dict] = []
-    feed_rows: list[dict] = []
-    delay = 1.0 / speed
-
-    for i, session in enumerate(sessions):
-        features = extract_features(session.__dict__)
-        arr = features_to_array(features).reshape(1, -1)
-        risk_score = float(model.predict_proba(arr)[0][1])
-        incentive = recommend_incentive(risk_score)
-        high_risk = risk_score >= 0.6
-
-        history.append({
-            "index": i + 1,
-            "risk_score": risk_score,
-            "high_risk": high_risk,
-            "incentive": incentive.value,
-            "device": session.device_type,
-            "cart_value": session.cart_value,
-            "abandoned": session.abandoned,
-        })
-
-        feed_rows.insert(0, {
-            "#": i + 1,
-            "Risk Score": f"{risk_score:.2f}",
-            "Device": session.device_type,
-            "Cart $": f"${session.cart_value:.0f}",
-            "Incentive": incentive.value,
-            "Ground Truth": "Abandoned" if session.abandoned else "Converted",
-        })
-
-        total = len(history)
-        high_risk_count = sum(1 for h in history if h["high_risk"])
-        label, color = INCENTIVE_LABELS[incentive]
-
-        metric_total.metric("Sessions Scored", total)
-        metric_high_risk.metric(
-            "High Risk (>=0.6)", f"{high_risk_count} ({high_risk_count / total:.0%})"
-        )
-        metric_avg_risk.metric(
-            "Avg Risk Score", f"{np.mean([h['risk_score'] for h in history]):.2f}"
-        )
-
-        feed_placeholder.dataframe(feed_rows[:20], use_container_width=True, hide_index=True)
-
-        detail_placeholder.markdown(f"""
-**Session #{i + 1}**
-- Risk Score: `{risk_score:.3f}`
-- :{color}[{label}]
-- Device: `{session.device_type}`
-- Cart Value: `${session.cart_value:.2f}`
-- Items: `{session.item_count}`
-- Session Duration: `{session.session_duration_seconds:.0f}s`
-- Checkout Attempts: `{session.checkout_start_attempts}`
-""")
-
-        if len(history) >= 5:
-            import pandas as pd
-            chart_data = pd.DataFrame({"Risk Score": [h["risk_score"] for h in history[-50:]]})
-            chart_placeholder.line_chart(chart_data, y="Risk Score", use_container_width=True)
-
-        time.sleep(delay)
-
-    st.success(f"Demo complete! Scored {len(history)} sessions.")
+    stream_sessions(model, scenario, int(num_sessions), speed)
 
 
 main()
