@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
 
-import numpy as np
 import xgboost as xgb
 
 from src.features.engineering import SessionFeatures, features_to_array

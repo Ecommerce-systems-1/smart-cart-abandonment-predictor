@@ -1770,8 +1770,8 @@ Create file `README.md`:
 
 > Real-time ML engine scoring cart abandonment risk and triggering the minimum-cost recovery incentive before the user leaves.
 
-[![CI](https://github.com/Ecommerce-systems/smart-cart-abandonment-predictor/actions/workflows/ci.yml/badge.svg)](https://github.com/Ecommerce-systems/smart-cart-abandonment-predictor/actions)
-[![Live Demo](https://img.shields.io/badge/🤗%20HuggingFace-Live%20Demo-blue)](https://huggingface.co/spaces/Ecommerce-systems/smart-cart-abandonment-predictor)
+[![CI](https://github.com/Ecommerce-systems-1/smart-cart-abandonment-predictor/actions/workflows/ci.yml/badge.svg)](https://github.com/Ecommerce-systems-1/smart-cart-abandonment-predictor/actions)
+[![Live Demo](https://img.shields.io/badge/🤗%20HuggingFace-Live%20Demo-blue)](https://huggingface.co/spaces/Ecommerce-systems-1/smart-cart-abandonment-predictor)
 [![Part of Ecommerce-systems](https://img.shields.io/badge/Ecommerce--systems-Project%2001%2F23-orange)](https://github.com/Ecommerce-systems)
 
 ## Why I Built This
@@ -1838,7 +1838,7 @@ Browser → POST /predict (FastAPI) → Feature Engineering → XGBoost Model �
 ## Quick Start
 
 ```bash
-git clone https://github.com/Ecommerce-systems/smart-cart-abandonment-predictor
+git clone https://github.com/Ecommerce-systems-1/smart-cart-abandonment-predictor
 cd smart-cart-abandonment-predictor
 docker compose up --build
 # API running at http://localhost:8000
@@ -1956,7 +1956,7 @@ git push origin main
 
 In `Ecommerce-systems\.github\profile\README.md`, update project 01 row:
 ```markdown
-| 01 | [Smart Cart Abandonment Predictor](https://github.com/Ecommerce-systems/smart-cart-abandonment-predictor) | Checkout & Conversion | Python · XGBoost · FastAPI · Streamlit | [🟢 Live Demo](https://huggingface.co/spaces/RishabhHajela/smart-cart-abandonment-predictor) |
+| 01 | [Smart Cart Abandonment Predictor](https://github.com/Ecommerce-systems-1/smart-cart-abandonment-predictor) | Checkout & Conversion | Python · XGBoost · FastAPI · Streamlit | [🟢 Live Demo](https://huggingface.co/spaces/RishabhHajela/smart-cart-abandonment-predictor) |
 ```
 
 - [ ] **Step 2: Commit and push org README**
@@ -1973,8 +1973,8 @@ git push origin main
 
 Check all 4 endpoints:
 1. `https://github.com/Ecommerce-systems` — Org page with pinned repos
-2. `https://github.com/Ecommerce-systems/smart-cart-abandonment-predictor` — Project repo with CI badge
-3. `https://github.com/Ecommerce-systems/smart-cart-abandonment-predictor/actions` — CI passing
+2. `https://github.com/Ecommerce-systems-1/smart-cart-abandonment-predictor` — Project repo with CI badge
+3. `https://github.com/Ecommerce-systems-1/smart-cart-abandonment-predictor/actions` — CI passing
 4. `https://huggingface.co/spaces/RishabhHajela/smart-cart-abandonment-predictor` — Live Streamlit demo
 
 **Project 01 complete. Proceed to:** Project 02 — Fraud Detection & Risk Scoring API

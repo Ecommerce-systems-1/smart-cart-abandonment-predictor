@@ -6,7 +6,7 @@
 
 ## 1. Purpose & Goals
 
-Build 23 GitHub projects specializing in Ecommerce, organized under the `Ecommerce-systems` GitHub Organization, in the following priority order:
+Build 23 GitHub projects specializing in Ecommerce, organized under the `Ecommerce-systems-1` GitHub Organization, in the following priority order:
 
 1. **Portfolio (A)** — Showcase PM + engineering depth to ecommerce companies and consulting clients
 2. **Learning (C)** — Systematically master different ecommerce domains through building
@@ -19,7 +19,7 @@ Build 23 GitHub projects specializing in Ecommerce, organized under the `Ecommer
 
 ## 2. GitHub Organization Structure
 
-**Org name:** `Ecommerce-systems`
+**Org name:** `Ecommerce-systems-1`
 
 **Org-level repos:**
 - `.github` — Org profile README (`profile/README.md`): master table of all 23 projects with status badges, live demo links, tech stack icons, and visual architecture diagram
@@ -194,7 +194,7 @@ Every README answers all 7 sections per `PM_projects.md`:
 ### Phase 6: Deploy & Publish
 - Deploy to free-tier platform per deployment strategy table
 - Add live demo badge + link to README
-- Create GitHub repo under `Ecommerce-systems` org
+- Create GitHub repo under `Ecommerce-systems-1` org
 - Pin top 6 repos on org profile
 - Update org-level README with new project entry + status badge
 
