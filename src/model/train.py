@@ -19,13 +19,14 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from data.generate import generate
 from src.features.engineering import extract_features, features_to_array
 
-
-MODEL_PATH = Path("models/cart_abandonment_model.json")
+MODEL_PATH = Path(__file__).parent.parent.parent / "models" / "cart_abandonment_model.json"
 TRAINING_VOLUME = 50_000
 SEED = 42
 
 
-def build_training_data(volume: int = TRAINING_VOLUME, seed: int = SEED) -> tuple[np.ndarray, np.ndarray]:
+def build_training_data(
+    volume: int = TRAINING_VOLUME, seed: int = SEED
+) -> tuple[np.ndarray, np.ndarray]:
     records = generate("mixed", volume, seed)
     X = np.array([
         features_to_array(extract_features(r.__dict__))

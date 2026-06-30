@@ -1,9 +1,8 @@
-import os
-import pytest
-import xgboost as xgb
 import numpy as np
-from src.features.engineering import extract_features, features_to_array
-from src.model.predict import Incentive, Prediction, recommend_incentive, predict
+import xgboost as xgb
+
+from src.features.engineering import extract_features
+from src.model.predict import Incentive, Prediction, predict, recommend_incentive
 from src.model.train import build_training_data, train_model
 
 VALID_SESSION = {
@@ -53,7 +52,7 @@ def test_build_training_data_returns_x_y():
 
 def test_build_training_data_y_is_binary():
     _, y = build_training_data(volume=200, seed=42)
-    assert set(y.tolist()).issubset({0, 1})
+    assert set(y.tolist()) == {0, 1}
 
 
 def test_build_training_data_reproducible():
@@ -78,11 +77,14 @@ def test_train_model_predict_proba_shape():
 
 def test_train_model_auc_above_threshold():
     from sklearn.metrics import roc_auc_score
+    from sklearn.model_selection import train_test_split
     X, y = build_training_data(volume=2000, seed=42)
-    split = int(len(X) * 0.8)
-    model = train_model(X[:split], y[:split])
-    proba = model.predict_proba(X[split:])[:, 1]
-    auc = roc_auc_score(y[split:], proba)
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42, shuffle=True
+    )
+    model = train_model(X_train, y_train)
+    proba = model.predict_proba(X_test)[:, 1]
+    auc = roc_auc_score(y_test, proba)
     assert auc >= 0.75, f"AUC {auc:.3f} below minimum threshold 0.75"
 
 
